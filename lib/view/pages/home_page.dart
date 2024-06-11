@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:notes_app/view/pages/add_note_page.dart';
+import 'package:notes_app/view/pages/notes_inherited_page.dart';
 
 class HomePage extends HookWidget {
   const HomePage({super.key});
@@ -37,79 +38,99 @@ class HomePage extends HookWidget {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.black,
-      body: CustomScrollView(
-        controller: scrollController,
-        slivers: [
-          SliverAppBar(
-            backgroundColor: Colors.black,
-            expandedHeight: 300,
-            pinned: true,
-            flexibleSpace: Center(
-              child: Opacity(
-                opacity: opacityState.value,
-                child: const Text(
-                  'Notes',
-                  style: TextStyle(
-                    fontSize: 32,
+      body: ValueListenableBuilder(
+        valueListenable: NotesInheritedPage.of(context).notes,
+        builder: (context, value, child) => CustomScrollView(
+          controller: scrollController,
+          slivers: [
+            SliverAppBar(
+              backgroundColor: Colors.black,
+              expandedHeight: 300,
+              pinned: true,
+              flexibleSpace: Center(
+                child: Opacity(
+                  opacity: opacityState.value,
+                  child: const Text(
+                    'Notes',
+                    style: TextStyle(
+                      fontSize: 32,
+                    ),
                   ),
                 ),
               ),
-            ),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: Container(
-                height: 60,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.menu),
-                    ),
-                    Expanded(
-                      child: Opacity(
-                        opacity: 1 - opacityState.value,
-                        child: const Text(
-                          'Notes',
-                          style: TextStyle(
-                            fontSize: 22,
+              bottom: PreferredSize(
+                preferredSize: const Size.fromHeight(60),
+                child: Container(
+                  height: 60,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.menu),
+                      ),
+                      Expanded(
+                        child: Opacity(
+                          opacity: 1 - opacityState.value,
+                          child: const Text(
+                            'Notes',
+                            style: TextStyle(
+                              fontSize: 22,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.search),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert),
-                    )
-                  ],
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.search),
+                      ),
+                      IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.more_vert),
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.all(16),
-            sliver: SliverGrid.builder(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 150,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 32,
-                childAspectRatio: 1 / 1.5,
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverGrid.builder(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 150,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 32,
+                  childAspectRatio: 1 / 1.75,
+                ),
+                itemCount: value.length,
+                itemBuilder: (context, index) {
+                  final currentNote = value[index];
+
+                  return Column(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[900],
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        currentNote.title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
-              itemBuilder: (context, index) {
-                return Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[900],
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                );
-              },
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
       floatingActionButton: Builder(builder: (context) {
         return FloatingActionButton(
