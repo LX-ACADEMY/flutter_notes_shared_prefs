@@ -4,12 +4,20 @@ import 'package:notes_app/models/note_model.dart';
 import 'package:notes_app/view/pages/notes_inherited_page.dart';
 
 class AddNotePage extends HookWidget {
-  const AddNotePage({super.key});
+  final int? noteIndex;
+  final NoteModel? noteToEdit;
+
+  const AddNotePage({
+    super.key,
+    this.noteToEdit,
+    this.noteIndex,
+  });
 
   @override
   Widget build(BuildContext context) {
     final titleController = useTextEditingController();
     final contentController = useTextEditingController();
+    final isEditMode = noteToEdit != null;
 
     void addNewNote() {
       final title = titleController.text;
@@ -17,20 +25,39 @@ class AddNotePage extends HookWidget {
 
       final notesState = NotesInheritedPage.of(context).notes;
 
-      notesState.value = [
-        ...notesState.value,
-        NoteModel(
+      if (isEditMode) {
+        final newNotes = [...notesState.value];
+        newNotes[noteIndex!] = NoteModel(
           title: title,
           content: content,
-        ),
-      ];
+        );
+
+        notesState.value = newNotes;
+      } else {
+        notesState.value = [
+          ...notesState.value,
+          NoteModel(
+            title: title,
+            content: content,
+          ),
+        ];
+      }
 
       Navigator.pop(context);
     }
 
+    useEffect(() {
+      if (isEditMode) {
+        titleController.text = noteToEdit!.title;
+        contentController.text = noteToEdit!.content;
+      }
+
+      return null;
+    });
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add new note'),
+        title: Text(isEditMode ? 'Edit note' : 'Add new note'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),

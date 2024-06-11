@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:notes_app/models/note_model.dart';
 import 'package:notes_app/view/pages/add_note_page.dart';
 import 'package:notes_app/view/pages/notes_inherited_page.dart';
 
@@ -31,6 +32,54 @@ class HomePage extends HookWidget {
         context,
         MaterialPageRoute(
           builder: (context) => const AddNotePage(),
+        ),
+      );
+    }
+
+    void openEditPage(
+      BuildContext context,
+      NoteModel noteToEdit,
+      int index,
+    ) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => AddNotePage(
+            noteToEdit: noteToEdit,
+            noteIndex: index,
+          ),
+        ),
+      );
+    }
+
+    void removeNote(int index) {
+      final notesState = NotesInheritedPage.of(context).notes;
+      final newNotes = [...notesState.value];
+      newNotes.removeAt(index);
+
+      notesState.value = newNotes;
+
+      Navigator.pop(context);
+    }
+
+    void openRemoveNoteDialog(int noteIndex) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete note'),
+          content: const Text('Are you sure you want to delete this note?'),
+          actions: [
+            TextButton(
+              onPressed: () => removeNote(noteIndex),
+              child: const Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('No'),
+            ),
+          ],
         ),
       );
     }
@@ -109,10 +158,15 @@ class HomePage extends HookWidget {
                   return Column(
                     children: [
                       Expanded(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.grey[900],
-                            borderRadius: BorderRadius.circular(16),
+                        child: GestureDetector(
+                          onLongPress: () => openRemoveNoteDialog(index),
+                          onTap: () =>
+                              openEditPage(context, currentNote, index),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.grey[900],
+                              borderRadius: BorderRadius.circular(16),
+                            ),
                           ),
                         ),
                       ),
