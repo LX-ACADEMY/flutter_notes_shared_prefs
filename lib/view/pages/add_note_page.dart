@@ -26,7 +26,7 @@ class AddNotePage extends HookWidget {
       final notesState = NotesInheritedPage.of(context).notes;
 
       if (isEditMode) {
-        final newNotes = [...notesState.value];
+        final newNotes = [...notesState.value!];
         newNotes[noteIndex!] = NoteModel(
           title: title,
           content: content,
@@ -35,7 +35,7 @@ class AddNotePage extends HookWidget {
         notesState.value = newNotes;
       } else {
         notesState.value = [
-          ...notesState.value,
+          ...notesState.value ?? [],
           NoteModel(
             title: title,
             content: content,
@@ -44,6 +44,8 @@ class AddNotePage extends HookWidget {
       }
 
       Navigator.pop(context);
+
+      NotesInheritedPage.of(context).saveNotes();
     }
 
     useEffect(() {

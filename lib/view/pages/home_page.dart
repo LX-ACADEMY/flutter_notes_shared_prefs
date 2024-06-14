@@ -54,12 +54,14 @@ class HomePage extends HookWidget {
 
     void removeNote(int index) {
       final notesState = NotesInheritedPage.of(context).notes;
-      final newNotes = [...notesState.value];
+      final newNotes = [...notesState.value!];
       newNotes.removeAt(index);
 
       notesState.value = newNotes;
 
       Navigator.pop(context);
+
+      NotesInheritedPage.of(context).saveNotes();
     }
 
     void openRemoveNoteDialog(int noteIndex) {
@@ -144,44 +146,51 @@ class HomePage extends HookWidget {
             ),
             SliverPadding(
               padding: const EdgeInsets.all(16),
-              sliver: SliverGrid.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 150,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 32,
-                  childAspectRatio: 1 / 1.75,
-                ),
-                itemCount: value.length,
-                itemBuilder: (context, index) {
-                  final currentNote = value[index];
+              sliver: value != null
+                  ? SliverGrid.builder(
+                      gridDelegate:
+                          const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 150,
+                        crossAxisSpacing: 16,
+                        mainAxisSpacing: 32,
+                        childAspectRatio: 1 / 1.75,
+                      ),
+                      itemCount: value.length,
+                      itemBuilder: (context, index) {
+                        final currentNote = value[index];
 
-                  return Column(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onLongPress: () => openRemoveNoteDialog(index),
-                          onTap: () =>
-                              openEditPage(context, currentNote, index),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[900],
-                              borderRadius: BorderRadius.circular(16),
+                        return Column(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onLongPress: () => openRemoveNoteDialog(index),
+                                onTap: () =>
+                                    openEditPage(context, currentNote, index),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[900],
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                            const SizedBox(height: 8),
+                            Text(
+                              currentNote.title,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    )
+                  : const SliverFillRemaining(
+                      child: Center(
+                        child: CircularProgressIndicator(),
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        currentNote.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  );
-                },
-              ),
+                    ),
             )
           ],
         ),
